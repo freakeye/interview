@@ -1,9 +1,11 @@
 ﻿<?php
 
 // подключение файлов настройки и библиотек
+// ;
 require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/AppSettings.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/CPaymentBaseClass.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/ClassesPayments.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentBaseClass.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentForCash.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentCashless.php';
 
 header('Content-type: text/plain; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');

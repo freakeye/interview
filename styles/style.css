@@ -31,6 +31,7 @@ input[name='payID'] {
 }
 
 div.pay_header {
+	margin-top: 1ex;
 	text-align: center;
 }
 
@@ -47,8 +48,7 @@ div.pay_method {
 }
 
 div.pay_cashless, div.pay_forcash {
-	flex: 1;
-	/*background-color: red;*/
+	flex: 1;						/*background-color: red;*/
 }
 
 div.btn_holder {
@@ -77,12 +77,15 @@ div.label_bonus {
 	margin-left: 2ex;
 }
 
+div#answBox {
+	margin-bottom: 4ex;
+}
+
 div.payBox {
-	width: inherit;
-	/*word-spacing: normal;*/
+	width: inherit;					/*word-spacing: normal;*/
 	margin: 1ex 3em;
 	border: 1px teal solid;
-	padding: 1ex 1em;
+	padding: 2ex 1em;
 }
 
 footer {

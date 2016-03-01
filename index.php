@@ -6,13 +6,18 @@
   <title>Payments</title>
 </head>
 <body>
+<?php
+	// require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentBaseClass.php';
+	// require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentForCash.php';
+	// require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/PaymentCashless.php';
+?>
 	<div class='container'>
 		<header>
-		<noscript>
+			<noscript>
 	You're browser not support JavaScript, or you have configured not to enable
 	javascripts.<br />
-	Ваш браузер не поддерживает javascript, или вы отключили это в настройках.
-  		</noscript>
+	Ваш браузер не поддерживает javascript, или вы отключили его в настройках.
+  			</noscript>
   		</header>
     <h3><span>Платёжная форма</span></h3>
 	<form id="formPay" method='POST'>
@@ -37,7 +42,9 @@
 								echo 'checked=\'checked\''; ?>
 					/></label>
 				<div class="label_bonus">Бонус
-            <?php echo 5; ?>% от суммы платежа</div>
+            		<?php echo 10//CPaymentForCash::K_FOR_CASH; ?>
+            		% от суммы платежа
+            	</div>
 			</div>
 			<div class="pay_forcash">
 				<label><span>Оплата наличными</span>
@@ -47,7 +54,9 @@
 								echo 'checked=\'checked\''; ?>
 					/></label>
 				<div class="label_bonus">Бонус
-            <?php echo 10; ?>% от суммы платежа</div>
+            		<?php echo 5//CPaymentCashless::K_CASHLESS; ?>
+            		% от суммы платежа
+            	</div>
 			</div>
 		</div>
 		<div class="btn_holder">

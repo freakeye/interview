@@ -1,12 +1,12 @@
 ﻿<?php
 
 // коэффициенты для начисления бонусов
-const	K_FOR_CASH = 0.05,
-		K_CASHLESS = 0.10;
+// const	K_FOR_CASH = 0.05,
+// 		K_CASHLESS = 0.10;
 // КУДА ИХ ЛУЧШЕ?
 
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/CDataBaseMySQL.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/test_job/lib/DataBaseMySQL.php';
 
 // Класс описывает абстрактный платёж
 // вся работы с базой данных идёт через него
@@ -25,7 +25,7 @@ abstract class CPaymentBaseClass
 	{
 		$this->payID = $payArray['payID'];
 		$this->payValue = $payArray['payValue'];
-		$this->payTime = time();						// unix epoch
+		$this->payTime = time();
 // Вычисление бонуса по платежу
 		$this->getBonusesValue();
 	}
@@ -68,23 +68,29 @@ abstract class CPaymentBaseClass
 //
 	public static function maxLastWeek()
 	{
+		$maxSumma;					// сумма максимального бонуса
 		CDataBaseMySQL::openDataBase();
+
 		$sql = "SELECT MAX(pay_value) AS 'max'
 					FROM paytable WHERE pay_method = 'forcash'
 							AND pay_time > NOW() - INTERVAL 7 DAY";
 		$maxCash = mysql_fetch_object(mysql_query($sql))->max;
+
 		$sql = "SELECT MAX(pay_value) AS 'max'
 					FROM paytable WHERE pay_method = 'cashless'
 							AND pay_time > NOW() - INTERVAL 7 DAY";
 		$maxLess = mysql_fetch_object(mysql_query($sql))->max;
+
 	// бонусы по типам платежей
 		$bonusCash = bcmul($maxCash, CPaymentForCash::K_FOR_CASH);
 		$bonusLess = bcmul($maxLess, CPaymentCashless::K_CASHLESS);
+
 	// совпадение бонусов для двух типов платежей
-		if ($bonusCash === $bonusLess) {
-			$maxSumma = $bonusLess;
+		if ($bonusCash === $bonusLess)
+		{
+			$maxSumma = $bonusLess;	// = $bonusCash
 	// объединение платежей
-			$sql = "SELECT * AS arr FROM paytable
+			$sql = "SELECT * FROM paytable
 						WHERE pay_value = $maxCash AND pay_method = 'forcash'
 						OR pay_value = $maxLess AND pay_method = 'cashless'";
 		}
@@ -93,6 +99,7 @@ abstract class CPaymentBaseClass
 			$maxSumma = ($bonusCash > $bonusLess) ? $bonusCash : $bonusLess;
 			$sql = "SELECT * FROM paytable WHERE pay_value = $maxPay";
 		}
+
 		$sql_result = mysql_query($sql);
 		CDataBaseMySQL::closeDataBase();
 		return self::printPayWithMaxBonuses($sql_result, $maxSumma);
@@ -102,7 +109,8 @@ abstract class CPaymentBaseClass
 	private static function printPayWithMaxBonuses($sql_result, $maxSumma)
 	{
 		$countRows = mysql_num_rows($sql_result);
-		switch ($countRows) {			// result header
+	// set answer header
+		switch ($countRows) {
 			case 0:
 				$result = 'В течение прошлой недели платежи не осуществлялись.
 							<br />Записи отсутствуют.<br />';
@@ -111,10 +119,11 @@ abstract class CPaymentBaseClass
 				$result = 'Платёж с максимальной суммой бонуса:<br /><br />';
 				break;
 			default:				// платежей несколько
-				$result = "Найдено платёжей с максимальной суммой бонуса:
-							<b>$countRows</b><br /><br />";		
+				$result = 'Платежей с максимальной суммой бонуса: '
+							. "<b>$countRows</b><br /><br />";
 				break;
 		}
+
 		for ($i = 0; $i < $countRows; $i++) {
 			$row = mysql_fetch_row($sql_result);
 			$result = $result . "ID платежа: $row[0]<br />" .

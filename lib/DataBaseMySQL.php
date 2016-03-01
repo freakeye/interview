@@ -19,9 +19,9 @@ class CDataBaseMySQL
 	{
 		self::$db_server = mysql_connect(self::$db_hostname,
 							self::$db_username, self::$db_password);
-		if (! self::$db_server) mysql_action_error('connect', mysql_error());
+		if (! self::$db_server) mysql_action_error('connect');
 		mysql_select_db(self::$db_database)
-			or mysql_action_error('select', mysql_error());
+			or mysql_action_error('select');
 	}
 
 	public static function closeDataBase()
@@ -32,11 +32,9 @@ class CDataBaseMySQL
 // подготовка SQL-инструкции
 	public static function prepareSql($id, $value, $method, $dati)
 	{
-
 		if ( ! self::$db_exist)
 		{
-		// Создание таблицы
-		// CREATE TABLE IF NOT EXIST
+		// Создание таблицы CREATE TABLE IF NOT EXIST
 			$query = "CREATE TABLE IF NOT EXISTS paytable (
 						pay_id INT(11) UNSIGNED NOT NULL PRIMARY KEY,
 						pay_value INT(10) UNSIGNED,
@@ -88,7 +86,7 @@ function mysql_action_error($action, $outMethod)
 	}
 	$errorMessage = mysql_error();
 	$errCode = mysql_errno();
-	if ($outMethod = 'echo') {
+	if ($outMethod === 'echo') {
 		echo <<<_END
 $headerErrMsg: <p>$errorMessage<br />$errCode</p>
 Обновите страницу и повторите попытку.
