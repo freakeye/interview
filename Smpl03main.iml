@@ -19,7 +19,7 @@
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-ie-driver:3.0.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-opera-driver:3.0.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-remote-driver:3.0.0-beta1" level="project" />
-    <orderEntry type="library" name="Maven: cglib:cglib-nodep:3.2.4" level="project" />
+    <orderEntry type="library" name="Maven:org.apache.xerces.parsers.AbstractSAXParser" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-safari-driver:3.0.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty:3.5.7.Final" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-support:3.0.0-beta1" level="project" />

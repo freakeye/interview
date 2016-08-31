@@ -1,11 +1,12 @@
 // package onlocal.testing.selenium
 
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.MarionetteDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -15,56 +16,110 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class Smpl03main {
 
     private static final String DEFAULT_SEARCH_PHRASE = new String("qa");
     private static final char SEARCH_PHRASE_DELIMETER = ' ';
-
-    private static final String marionetteDriverLocation =
-            "D:\\Selenium\\geckodriver0.9\\geckodriver.exe\\";
     private static String searchPhrase = DEFAULT_SEARCH_PHRASE;
+    private static String regexpPhrase = "(\\W|^)(" + DEFAULT_SEARCH_PHRASE + ")(\\W|$)";
 
-    private static String cssLocator = new String("#rso > div > div:nth-child"
-            + "(3) > div > h3 > a");
+    static final String marionetteDriverPath = "D:\\bin\\bySelenium\\geckodriver.exe";
+    static final String contentFileName = "outBoilerpipe.txt";
+
+    // локатор третьей ссылки в выдаче google
+    private static String cssLocator = new String("#rso > div > div:nth-child(3) > div > h3 > a");
 
     private static WebDriver driver;
 
-// http://automated-testing.info/t/topic/1741/9
-    public static void switchWindow(WebDriver driver, int numberOfWindow) {
-        String handle = driver.getWindowHandles().toArray()[numberOfWindow].toString();
-        driver.switchTo().window(handle);
+    static int countSearchPhrase = 0;
+
+    // извлечение plain text из html-кода страницы
+    // используется библиотека Boilerpipe
+    // htmlPage — строка html-кода
+    //
+    public static String extractText(String htmlPage) {
+        String sb = "_";
+        try {
+            sb = new String( ArticleExtractor.INSTANCE.getText(htmlPage) );
+        }
+        catch (BoilerpipeProcessingException e) {
+            e.printStackTrace();
+        }
+        return sb;
     }
 
-
-    public static String openInNewWindow(String url) {
-        String name = "some_random_name";
-        ((JavascriptExecutor) driver)
-                .executeScript("window.open(arguments[0], \"" + name + "\")", url);
-        return name;
+    // поиск количества вхождений ключевой фразы в тексте html-страницы
+    // используются регулярные выражения, регистр символов не учитывается
+    //
+    private static int getCountSearchPhrase(String content) {
+        Pattern phrase = Pattern.compile(regexpPhrase, Pattern.CASE_INSENSITIVE);
+        Matcher matchStr = phrase.matcher(content);
+        int t = 0;
+        while (matchStr.find())
+            t++;
+        return t;                   // countSearchPhrase;
     }
 
-    public static void main(String[] args)
-//            throws IOException
-//            throws InterruptedException
-    {
-        System.setProperty("webdriver.gecko.driver", marionetteDriverLocation);
+    // запись содержимого html-страницы в файл
+    //
+    public static void writeInFile(String htmlContent) {
+        File outFile = new File(contentFileName);
+        BufferedWriter outFileW;
+        try {
+            if (!outFile.exists())
+                outFile.createNewFile();
+
+            outFileW = new BufferedWriter(new FileWriter(outFile.getAbsoluteFile()));
+            try {
+                outFileW.write(htmlContent);
+            } finally {
+                outFileW.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+        System.setProperty("webdriver.gecko.driver", marionetteDriverPath);
         DesiredCapabilities capabilities = DesiredCapabilities.firefox();
         capabilities.setCapability("marionette", true);
         driver = new FirefoxDriver(capabilities);
 
         driver.get("https://www.google.ru");
+
+        // ожидание; нужно время, чтобы заполнить капчу
+        //
+        (new WebDriverWait(driver, 10)).until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver d) {
+                return d.findElement(By.name("q")).isDisplayed();
+            }
+        });
         WebElement element = driver.findElement(By.name("q"));
 
+        // формирование строки поискового запроса из аргументов программы
+        //
         if (args.length > 0) {
-            // parsing arguments
             StringBuilder srchPhraseSb = new StringBuilder();
+            StringBuilder regexpPhraseSb = new StringBuilder();
+
             for (String s : args) {
                 srchPhraseSb.append(s);
                 srchPhraseSb.append(SEARCH_PHRASE_DELIMETER);
+
+                regexpPhraseSb.append(s);
+                regexpPhraseSb.append('|');
             }
-            searchPhrase = srchPhraseSb.toString();
+            searchPhrase = srchPhraseSb.toString().trim();
+            regexpPhrase = regexpPhraseSb.substring(0, regexpPhraseSb.length()-1).toString();
+            regexpPhrase = "(\\W|^)(" + regexpPhrase + ")(\\W|$)";
         }
+//System.out.println("regexpPhrase is: \n" + regexpPhrase);
 
         element.sendKeys(searchPhrase);
         element.submit();
@@ -75,53 +130,30 @@ public class Smpl03main {
             }
         });
 
-        WebElement srchEl;
-        srchEl = driver.findElement(By.cssSelector(cssLocator));
-// System.out.println(srchEl);
-        srchEl.click();
-//        driver.navigate().forward();
-//        WebWindow newBrowserTab =
+        // искомый элемент в DOM-дереве
+        WebElement srchEl = driver.findElement(By.cssSelector(cssLocator));
+
         String srchHref = srchEl.getAttribute("href");
-System.out.println(srchHref);
+//System.out.println(srchHref);
 
-//        driver.get(srchHref);
-//        ((JavascriptExecutor) driver).executeScript("window.open(arguments[0])", srchHref);
-//        switchWindow(driver, 1);
-        driver.switchTo().window( openInNewWindow(srchHref) );
-
-
-
-        String htmlContentAsString = driver.getPageSource();
-System.out.println(htmlContentAsString);
-
-
-/*
-        File outFile = new File("out.html");
-        BufferedWriter outFileW;
-        try {
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            outFileW = new BufferedWriter(new FileWriter(outFile.getAbsoluteFile()));
-
-            try {
-                outFileW.write(htmlContentAsString);
-            } finally {
-                outFileW.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-*/
-
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        // перезапуск драйвера с новым url
         driver.quit();
+        driver = new FirefoxDriver(capabilities);
+        driver.get(srchHref);
+
+        // TODO проверки, отсечь 5xx ошибки, подгрузить ajax
+        //
+        String htmlContentAsString = extractText( driver.getPageSource() );
+
+//System.out.println(htmlContentAsString);
+//writeInFile(htmlContentAsString);
+
+        countSearchPhrase = getCountSearchPhrase(htmlContentAsString);
+        driver.quit();
+
+        if (countSearchPhrase == 0)
+            System.out.println("\nFailed\n");
+        else
+            System.out.println("\nPassed\n");
     }
 }

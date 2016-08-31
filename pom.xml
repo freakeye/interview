@@ -17,4 +17,23 @@
         </dependency>
     </dependencies>
 
+    <dependency>
+        <groupId>de.l3s.boilerpipe</groupId>
+        <artifactId>boilerpipe</artifactId>
+        <version>1.2.0</version>
+        <systemPath>${project.basedir}/src/main/resources/boilerpipe-1.2.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.6.2</version>
+        <systemPath>${project.basedir}/src/main/resources/xerces-2_6_2.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>net.sourceforge.nekohtml</groupId>
+        <artifactId>nekohtml</artifactId>
+        <version>1.9.17</version>
+        <systemPath>${project.basedir}/src/main/resources/nekohtml-1.9.17.jar</systemPath>
+    </dependency>
+
 </project>
